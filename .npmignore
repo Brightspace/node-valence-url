@@ -1,0 +1,13 @@
+node_modules
+coverage
+
+.npmignore
+.gitignore
+*.tgz
+
+.editorconfig
+
+.travis.yml
+.npmrc*
+
+test
