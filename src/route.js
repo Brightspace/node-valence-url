@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 
-const ValenceVersion = require('./valence-version');
+const ValenceVersion = require('./version');
 
 class ValenceRoute {
 }

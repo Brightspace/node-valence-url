@@ -11,14 +11,14 @@ const
 
 describe('ValenceVersion', function() {
 	it('should require product version be a string', function() {
-		expect(function () {
-			new ValenceVersion(1, '1.5')
+		expect(function() {
+			new ValenceVersion(1, '1.5');
 		}).to.throw;
 	});
 
 	it('should require Valence API version be a string', function() {
-		expect(function () {
-			new ValenceVersion('lp', 1.5)
+		expect(function() {
+			new ValenceVersion('lp', 1.5);
 		}).to.throw;
 	});
 

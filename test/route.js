@@ -7,8 +7,8 @@ const
 	expect = chai.expect;
 
 const
-	ValenceVersion = require('../src/valence-version'),
-	ValenceRoute = require('../src/valence-route'),
+	ValenceVersion = require('../src/version'),
+	ValenceRoute = require('../src/route'),
 	SimpleValenceRoute = ValenceRoute.SimpleValenceRoute,
 	VersionedValenceRoute = ValenceRoute.VersionedValenceRoute,
 	LERoute = ValenceRoute.LERoute,
@@ -19,7 +19,7 @@ const valenceVersion = new ValenceVersion('lp', '1.5');
 describe('ValenceRoute', function() {
 	describe('SimpleValenceRoute', function() {
 		it('should require path be a string', function() {
-			expect(function () {
+			expect(function() {
 				new SimpleValenceRoute(1);
 			}).to.throw;
 		});
@@ -32,19 +32,19 @@ describe('ValenceRoute', function() {
 
 	describe('VersionedValenceRoute', function() {
 		it('should require prefix be a string', function() {
-			expect(function () {
+			expect(function() {
 				new VersionedValenceRoute(1, valenceVersion, 'foo');
 			}).to.throw;
 		});
 
 		it('should require version be a ValenceVersion', function() {
-			expect(function () {
+			expect(function() {
 				new VersionedValenceRoute('foo', 'bar', 'foo');
 			}).to.throw;
 		});
 
 		it('should require suffix be a string', function() {
-			expect(function () {
+			expect(function() {
 				new VersionedValenceRoute('foo', valenceVersion, 1);
 			}).to.throw;
 		});

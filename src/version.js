@@ -32,7 +32,7 @@ class ValenceVersion {
 	isConcrete() {
 		// No wildcards; unstable is also concrete
 		return ('unstable' === this._version)
-			|| (null != semver.valid(toSemVer(this._version)));
+			|| (null !== semver.valid(toSemVer(this._version)));
 	}
 }
 
