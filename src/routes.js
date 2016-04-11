@@ -2,8 +2,6 @@
 
 const assert = require('assert');
 
-const ValenceVersion = require('./version');
-
 class ValenceRoute {
 }
 
@@ -24,18 +22,22 @@ class SimpleValenceRoute extends ValenceRoute {
 }
 
 class VersionedValenceRoute extends ValenceRoute {
-	constructor(prefix, version, suffix) {
+	constructor(product, prefix, version, suffix) {
+		assert('string' === typeof product, 'product must be a string');
 		assert('string' === typeof prefix, 'prefix must be a string');
-		assert(version instanceof ValenceVersion, 'version must be a ValenceVersion');
+		assert('string' === typeof version, 'version must be a string');
 		assert('string' === typeof suffix, 'suffix must be a string');
 
 		super();
 
-		this._prefix = prefix.startsWith('/') ? prefix : '/' + prefix;
-		this._prefix = prefix.endsWith('/') ? this._prefix : this._prefix + '/';
+		this._product = product;
+		this._prefix = prefix.endsWith('/') ? prefix : prefix + '/';
 		this._version = version;
 		this._suffix = suffix.startsWith('/') ? suffix : '/' + suffix;
-		this._suffix = suffix.endsWith('/') ? this._suffix : this._suffix + '/';
+	}
+
+	get product() {
+		return this._product;
 	}
 
 	get prefix() {
@@ -51,22 +53,8 @@ class VersionedValenceRoute extends ValenceRoute {
 	}
 }
 
-class LERoute extends VersionedValenceRoute {
-	constructor(versionString, path) {
-		super('/d2l/api/le/', new ValenceVersion('le', versionString), path);
-	}
-}
-
-class LPRoute extends VersionedValenceRoute {
-	constructor(versionString, path) {
-		super('/d2l/api/lp/', new ValenceVersion('lp', versionString), path);
-	}
-}
-
 module.exports = {
 	ValenceRoute: ValenceRoute,
 	SimpleValenceRoute: SimpleValenceRoute,
-	VersionedValenceRoute: VersionedValenceRoute,
-	LERoute: LERoute,
-	LPRoute: LPRoute
+	VersionedValenceRoute: VersionedValenceRoute
 };
