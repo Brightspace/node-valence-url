@@ -5,8 +5,9 @@
   "description": "Utility to simplify dealing with Valence API versioning",
   "main": "src/index.js",
   "scripts": {
-    "check-style": "esling --ignore-path .gitignore .",
-    "test": "npm run check-style"
+    "check-style": "eslint --ignore-path .gitignore .",
+    "test-no-style": "export NODE_ENV=test; node_modules/.bin/mocha -R spec ./test",
+    "test": "npm run check-style && npm run test-no-style"
   },
   "author": "D2L Corporation",
   "homepage": "https://github.com/Brightspace/node-valence-url",
@@ -25,7 +26,12 @@
     }
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "eslint": "^2.7.0",
-    "eslint-config-brightspace": "^0.2.0"
+    "eslint-config-brightspace": "^0.2.0",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "semver": "^5.1.0"
   }
 }
