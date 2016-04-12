@@ -4,7 +4,7 @@ Module for dealing with Valence API versions and calculating routes in a semver-
 
 ## Usage
 
-`node-valence-url` is comprised of two parts - `ValenceRoute`s and the `ValenceUrlResolver`. See [API](#API) for more details.
+`node-valence-url` is comprised of two parts - `ValenceRoute`s and the `ValenceUrlResolver`. See below for more details.
 
 ```js
 var valenceUrl = require('node-valence-url');
