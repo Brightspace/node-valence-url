@@ -16,12 +16,12 @@ describe('ValenceUrlResolver', function() {
 	it('should work', function() {
 		const versions = new ValenceVersions([{
 			ProductCode: 'lp',
-			SupportedVersions: ['1.4', '1.5']
+			LatestVersion: '1.5'
 		}]);
 
 		const resolver = new ValenceUrlResolver(versions);
 
-		const route = new VersionedValenceRoute('lp', 'foo', '1.5', 'bar');
+		const route = new VersionedValenceRoute('lp', 'foo', 'bar');
 
 		expect(resolver.resolve(route)).to.equal('foo/1.5/bar');
 	});

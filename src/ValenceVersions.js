@@ -4,6 +4,10 @@ const
 	assert = require('assert'),
 	semver = require('semver');
 
+const
+	errors = require('./errors'),
+	ProductNotSupported = errors.ProductNotSupported;
+
 function toSemVer(versionString) {
 	return versionString + '.0';
 }
@@ -19,29 +23,33 @@ class ValenceVersions {
 
 		products.forEach(function(product) {
 			assert('string' === typeof product.ProductCode, 'ProductCode must be a string');
-			assert(Array.isArray(product.SupportedVersions), 'SupportedVersions must be an Array');
+			assert('string' === typeof product.LatestVersion, 'LatestVersion must be a string');
 
-			product.SupportedVersions.forEach(function(version) {
-				assert('string' === typeof version, 'versions must be strings');
-			});
-
-			self._productVersions[product.ProductCode] = product.SupportedVersions;
+			self._productVersions[product.ProductCode] = {
+				latest: product.LatestVersion
+			};
 		});
 
 	}
 
-	get productVersions() {
-		return this._productVersions;
+	version(product) {
+		const productInfo = this._productVersions[product];
+
+		if (!productInfo) {
+			throw new ProductNotSupported(product);
+		}
+
+		return productInfo.latest;
 	}
 
-	supportedVersions(product) {
-		return this._productVersions[product];
-	}
+	isSupported(product, desiredSemVer) {
+		const productSemVer = toSemVer(this._productVersions[product].version);
 
-	isSupported(product, desiredVersion) {
-		return this._productVersions[product].some(function(productVersion) {
-			return semver.satisfies(toSemVer(productVersion), toSemVer(desiredVersion));
-		});
+		if (semver.satisfies(productSemVer, desiredSemVer)) {
+			return true;
+		}
+
+		return false;
 	}
 }
 

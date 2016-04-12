@@ -21,22 +21,10 @@ class ValenceUrlResolver {
 	}
 
 	_resolveVersion(route) {
-		// Look through LMS-supported versions for given product/version
-		const supportedVersions = this._lmsVersions.supportedVersions(route.product);
-
-		const matchingVersion = supportedVersions.find(function(version) {
-			return version === route.version;
-		});
-
-		if (!matchingVersion) {
-			throw new Error('No matching version for product found');
-		}
-
-		return matchingVersion;
+		return this._lmsVersions.version(route.product);
 	}
 
 	resolve(route) {
-		// Takes a ValenceRoute and return a string with the higest matching version filled in
 		assert(route instanceof ValenceRoute, 'route must be a ValenceRoute');
 
 		if (route instanceof SimpleValenceRoute) {

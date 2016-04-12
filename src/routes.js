@@ -10,9 +10,7 @@ class SimpleValenceRoute extends ValenceRoute {
 
 	constructor(path) {
 		assert('string' === typeof path, 'path must be a string');
-
 		super();
-
 		this._path = path;
 	}
 
@@ -22,17 +20,15 @@ class SimpleValenceRoute extends ValenceRoute {
 }
 
 class VersionedValenceRoute extends ValenceRoute {
-	constructor(product, prefix, version, suffix) {
+	constructor(product, prefix, suffix) {
 		assert('string' === typeof product, 'product must be a string');
 		assert('string' === typeof prefix, 'prefix must be a string');
-		assert('string' === typeof version, 'version must be a string');
 		assert('string' === typeof suffix, 'suffix must be a string');
 
 		super();
 
 		this._product = product;
 		this._prefix = prefix.endsWith('/') ? prefix : prefix + '/';
-		this._version = version;
 		this._suffix = suffix.startsWith('/') ? suffix : '/' + suffix;
 	}
 
@@ -42,10 +38,6 @@ class VersionedValenceRoute extends ValenceRoute {
 
 	get prefix() {
 		return this._prefix;
-	}
-
-	get version() {
-		return this._version;
 	}
 
 	get suffix() {
