@@ -4,9 +4,7 @@ const
 	assert = require('assert'),
 	semver = require('semver');
 
-const
-	errors = require('./errors'),
-	ProductNotSupported = errors.ProductNotSupported;
+const errors = require('./errors');
 
 function toSemVer(versionString) {
 	return versionString + '.0';
@@ -32,24 +30,30 @@ class ValenceVersions {
 
 	}
 
-	version(product) {
-		const productInfo = this._productVersions[product];
-
-		if (!productInfo) {
-			throw new ProductNotSupported(product);
+	_isSupported(valenceVersion, desiredSemVerRange) {
+		if (!semver.validRange(desiredSemVerRange)) {
+			throw new errors.InvalidSemVerRange(desiredSemVerRange);
 		}
 
-		return productInfo.latest;
-	}
-
-	isSupported(product, desiredSemVer) {
-		const productSemVer = toSemVer(this._productVersions[product].version);
-
-		if (semver.satisfies(productSemVer, desiredSemVer)) {
+		if (semver.satisfies(toSemVer(valenceVersion), desiredSemVerRange)) {
 			return true;
 		}
 
 		return false;
+	}
+
+	version(product, desiredSemVerRange) {
+		const productInfo = this._productVersions[product];
+
+		if (!productInfo) {
+			throw new errors.ProductNotSupported(product);
+		}
+
+		if (!this._isSupported(productInfo.latest, desiredSemVerRange)) {
+			throw new errors.NoMatchingVersionFound(productInfo.latest, desiredSemVerRange);
+		}
+
+		return productInfo.latest;
 	}
 }
 

@@ -12,17 +12,23 @@ const
 	route = require('../src/routes'),
 	VersionedValenceRoute = route.VersionedValenceRoute;
 
+const supportedVersions = new ValenceVersions([{
+	ProductCode: 'lp',
+	LatestVersion: '1.6'
+}]);
+
 describe('ValenceUrlResolver', function() {
+	it('should require an instance of ValenceVersions', function() {
+		expect(function() {
+			new ValenceUrlResolver(1);
+		}).to.throw;
+	});
+
 	it('should work', function() {
-		const versions = new ValenceVersions([{
-			ProductCode: 'lp',
-			LatestVersion: '1.5'
-		}]);
+		const resolver = new ValenceUrlResolver(supportedVersions);
 
-		const resolver = new ValenceUrlResolver(versions);
+		const route = new VersionedValenceRoute('lp', 'foo', 'bar', '^1.5');
 
-		const route = new VersionedValenceRoute('lp', 'foo', 'bar');
-
-		expect(resolver.resolve(route)).to.equal('foo/1.5/bar');
+		expect(resolver.resolve(route)).to.equal('foo/1.6/bar');
 	});
 });

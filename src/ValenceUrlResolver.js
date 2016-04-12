@@ -10,18 +10,18 @@ const
 	VersionedValenceRoute = route.VersionedValenceRoute;
 
 class ValenceUrlResolver {
-	constructor(lmsVersions) {
-		assert(lmsVersions instanceof ValenceVersions);
+	constructor(supportedVersions) {
+		assert(supportedVersions instanceof ValenceVersions);
 
-		this._lmsVersions = lmsVersions;
+		this._supportedVersions = supportedVersions;
 	}
 
-	get lmsVersions() {
-		return this._lmsVersions;
+	get supportedVersions() {
+		return this._supportedVersions;
 	}
 
 	_resolveVersion(route) {
-		return this._lmsVersions.version(route.product);
+		return this._supportedVersions.version(route.product, route.desiredSemVer);
 	}
 
 	resolve(route) {

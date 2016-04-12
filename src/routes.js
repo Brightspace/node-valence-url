@@ -6,7 +6,7 @@ class ValenceRoute {
 }
 
 class SimpleValenceRoute extends ValenceRoute {
-	// e.g. /d2l/api/versions
+	// e.g. /d2l/api/versions/
 
 	constructor(path) {
 		assert('string' === typeof path, 'path must be a string');
@@ -20,16 +20,20 @@ class SimpleValenceRoute extends ValenceRoute {
 }
 
 class VersionedValenceRoute extends ValenceRoute {
-	constructor(product, prefix, suffix) {
+	// e.g. /d2l/api/lp/1.5/enrollments/myenrollments/
+
+	constructor(product, prefix, suffix, desiredSemVer) {
 		assert('string' === typeof product, 'product must be a string');
 		assert('string' === typeof prefix, 'prefix must be a string');
 		assert('string' === typeof suffix, 'suffix must be a string');
+		assert('string' === typeof desiredSemVer || desiredSemVer === undefined, 'desiredSemVer must be a string or undefined');
 
 		super();
 
 		this._product = product;
 		this._prefix = prefix.endsWith('/') ? prefix : prefix + '/';
 		this._suffix = suffix.startsWith('/') ? suffix : '/' + suffix;
+		this._desiredSemVer = desiredSemVer || '^0.0.0';
 	}
 
 	get product() {
@@ -42,6 +46,10 @@ class VersionedValenceRoute extends ValenceRoute {
 
 	get suffix() {
 		return this._suffix;
+	}
+
+	get desiredSemVer() {
+		return this._desiredSemVer;
 	}
 }
 
