@@ -9,7 +9,9 @@ const
 const
 	ValenceRoute = require('../src/ValenceRoute'),
 	SimpleValenceRoute = ValenceRoute.Simple,
-	VersionedValenceRoute = ValenceRoute.Versioned;
+	VersionedValenceRoute = ValenceRoute.Versioned,
+	LPRoute = ValenceRoute.LP,
+	LERoute = ValenceRoute.LE;
 
 describe('SimpleValenceRoute', function() {
 	it('should require the path be a string', function() {
@@ -72,5 +74,26 @@ describe('VersionedValenceRoute', function() {
 
 		route = new VersionedValenceRoute('foo/', 'bar', 'baz');
 		expect(route.suffix).to.equal('/baz');
+	});
+
+	it('shoud have a desiredSemVer property, if set', function() {
+		const route = new VersionedValenceRoute('foo', 'bar', 'baz', '^1.5');
+		expect(route.desiredSemVer).to.equal('^1.5');
+	});
+
+	describe('LEValenceRoute', function() {
+		it('should have the correct properties', function() {
+			const route = new LERoute('/bar');
+			expect(route.product).to.equal('le');
+			expect(route.prefix).to.equal('/d2l/api/le/');
+		});
+	});
+
+	describe('LPValenceRoute', function() {
+		it('should have the correct properties', function() {
+			const route = new LPRoute('/bar');
+			expect(route.product).to.equal('lp');
+			expect(route.prefix).to.equal('/d2l/api/lp/');
+		});
 	});
 });

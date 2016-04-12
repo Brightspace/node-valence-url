@@ -67,6 +67,14 @@ Constructor. Versioned Valence route, e.g. `/d2l/api/lp/1.5/enrollments/myenroll
 * `suffix` - part after the version in the route - _e.g. "/enrollments/myenrollments/"_
 * `desiredSemVer` - optional; when resolving a route, use this SemVer range to specify which version(s) we want to allow the route to be resolve with - _e.g. "^1.4"_
 
+### `ValenceRoute.LP(String suffix[, String desiredSemVer])`
+
+Convenience constructor. Similar to `Versioned`, but sets `product` to `lp` and `prefix` to `/d2l/api/lp/`.
+
+### `ValenceRoute.LE(String suffix[, String desiredSemVer])`
+
+Convenience constructor. Similar to `Versioned`, but sets `product` to `le` and `prefix` to `/d2l/api/le/`.
+
 ## Contributing
 
 1. **Fork** the repository. Committing directly against this repository is highly discouraged.

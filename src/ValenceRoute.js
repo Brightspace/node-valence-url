@@ -53,6 +53,20 @@ class VersionedValenceRoute extends ValenceRoute {
 	}
 }
 
+class LEValenceRoute extends VersionedValenceRoute {
+	constructor(suffix, desiredSemVer) {
+		super('le', '/d2l/api/le/', suffix, desiredSemVer);
+	}
+}
+
+class LPValenceRoute extends VersionedValenceRoute {
+	constructor(suffix, desiredSemVer) {
+		super('lp', '/d2l/api/lp/', suffix, desiredSemVer);
+	}
+}
+
 module.exports = ValenceRoute;
 module.exports.Simple = SimpleValenceRoute;
 module.exports.Versioned = VersionedValenceRoute;
+module.exports.LE = LEValenceRoute;
+module.exports.LP = LPValenceRoute;

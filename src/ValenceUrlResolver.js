@@ -32,7 +32,7 @@ class ValenceUrlResolver {
 	}
 
 	resolve(route, queryString) {
-		assert(route instanceof ValenceRoute, 'route must be a ValenceRoute');
+		assert(route instanceof ValenceRoute || 'string' === typeof route, 'route must be a ValenceRoute or a string');
 
 		let result;
 		if (route instanceof SimpleValenceRoute) {
