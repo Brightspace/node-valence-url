@@ -7,9 +7,9 @@ const
 	expect = chai.expect;
 
 const
-	routes = require('../src/routes'),
-	SimpleValenceRoute = routes.SimpleValenceRoute,
-	VersionedValenceRoute = routes.VersionedValenceRoute;
+	ValenceRoute = require('../src/ValenceRoute'),
+	SimpleValenceRoute = ValenceRoute.Simple,
+	VersionedValenceRoute = ValenceRoute.Versioned;
 
 describe('SimpleValenceRoute', function() {
 	it('should require the path be a string', function() {

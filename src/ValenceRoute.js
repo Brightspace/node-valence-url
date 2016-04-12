@@ -53,8 +53,6 @@ class VersionedValenceRoute extends ValenceRoute {
 	}
 }
 
-module.exports = {
-	ValenceRoute: ValenceRoute,
-	SimpleValenceRoute: SimpleValenceRoute,
-	VersionedValenceRoute: VersionedValenceRoute
-};
+module.exports = ValenceRoute;
+module.exports.Simple = SimpleValenceRoute;
+module.exports.Versioned = VersionedValenceRoute;

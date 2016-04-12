@@ -12,11 +12,13 @@ function toSemVer(versionString) {
 
 class ValenceVersions {
 	// Represents reply from /d2l/api/versions/ call
-	constructor(products) {
+	constructor(tenantUrl, products) {
 		const self = this;
 
+		assert('string' === typeof tenantUrl, 'tenantUrl must be a string');
 		assert(Array.isArray(products), 'products must be an Array');
 
+		self._tenantUrl = tenantUrl;
 		self._productVersions = {};
 
 		products.forEach(function(product) {
@@ -27,29 +29,28 @@ class ValenceVersions {
 				latest: product.LatestVersion
 			};
 		});
-
 	}
 
-	_isSupported(valenceVersion, desiredSemVerRange) {
-		if (!semver.validRange(desiredSemVerRange)) {
-			throw new errors.InvalidSemVerRange(desiredSemVerRange);
-		}
-
-		if (semver.satisfies(toSemVer(valenceVersion), desiredSemVerRange)) {
-			return true;
-		}
-
-		return false;
+	get tenantUrl() {
+		return this._tenantUrl;
 	}
 
-	version(product, desiredSemVerRange) {
+	resolveVersion(product, desiredSemVerRange) {
 		const productInfo = this._productVersions[product];
 
 		if (!productInfo) {
 			throw new errors.ProductNotSupported(product);
 		}
 
-		if (!this._isSupported(productInfo.latest, desiredSemVerRange)) {
+		if (!desiredSemVerRange) {
+			return productInfo.latest;
+		}
+
+		if (!semver.validRange(desiredSemVerRange)) {
+			throw new errors.InvalidSemVerRange(desiredSemVerRange);
+		}
+
+		if (!semver.satisfies(toSemVer(productInfo.latest), desiredSemVerRange)) {
 			throw new errors.NoMatchingVersionFound(productInfo.latest, desiredSemVerRange);
 		}
 
