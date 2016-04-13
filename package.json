@@ -1,5 +1,5 @@
 {
-  "name": "node-valence-url",
+  "name": "valence-url",
   "private": true,
   "version": "0.1.0",
   "description": "Utility to simplify dealing with Valence API versioning",
@@ -30,7 +30,8 @@
     "co-mocha": "^1.1.2",
     "eslint": "^2.7.0",
     "eslint-config-brightspace": "^0.2.0",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "nock": "^8.0.0"
   },
   "dependencies": {
     "co": "^4.6.0",
