@@ -1,10 +1,11 @@
-/* global describe, it */
+/* global describe, it, beforeEach, afterEach */
 
 'use strict';
 
 const
 	chai = require('chai'),
-	expect = chai.expect;
+	expect = chai.expect,
+	nock = require('nock');
 
 const
 	errors = require('../src/errors'),
@@ -12,71 +13,84 @@ const
 
 const
 	instanceUrl = 'http://example.com',
-	supportedVersions = [{
-		ProductCode: 'lp',
-		LatestVersion: '1.5'
-	}];
+	authToken = 'foo';
+
+require('co-mocha');
 
 describe('ValenceVersion', function() {
 	it('should require a string tenantUrl', function() {
 		expect(function() {
-			new ValenceVersions(1, supportedVersions);
+			new ValenceVersions(1, authToken);
 		}).to.throw;
 	});
 
-	it('should require an array of products', function() {
+	it('should require a string authToken', function() {
 		expect(function() {
 			new ValenceVersions(instanceUrl, 1);
 		}).to.throw;
 	});
 
-	it('should require each product have a ProductCode string', function() {
-		expect(function() {
-			new ValenceVersions(instanceUrl, [{
-				ProductCode: 1,
-				LatestVersion: '1.5'
-			}]);
-		}).to.throw;
-	});
+	describe('resolveVersion', function() {
+		let lms;
 
-	it('should require each product have a LatestVersion string', function() {
-		expect(function() {
-			new ValenceVersions(instanceUrl, [{
-				ProductCode: 'lp',
-				LatestVersion: 1
-			}]);
-		}).to.throw;
-	});
-
-	it('should have a tenantUrl property', function() {
-		const ver = new ValenceVersions(instanceUrl, supportedVersions);
-		expect(ver.tenantUrl).to.equal(instanceUrl);
-	});
-
-	describe('getting product version', function() {
-		it('should return the latest version of the desired product', function() {
-			const ver = new ValenceVersions(instanceUrl, supportedVersions);
-			expect(ver.resolveVersion('lp')).to.equal('1.5');
+		beforeEach(function() {
+			lms = nock(instanceUrl)
+				.get('/d2l/api/versions/')
+				.reply(200, [{
+					ProductCode: 'lp',
+					LatestVersion: '1.5'
+				}]);
 		});
 
-		it('should return the latest matching version of the desired product', function() {
-			const ver = new ValenceVersions(instanceUrl, supportedVersions);
-			expect(ver.resolveVersion('lp', '^1.3.0')).to.equal('1.5');
+		afterEach(function() {
+			lms.done();
 		});
 
-		it('should throw if no matching version of the desired product is found', function() {
-			const ver = new ValenceVersions(instanceUrl, supportedVersions);
-			expect(ver.resolveVersion.bind(ver, 'lp', '^1.6.0')).to.throw(errors.NoMatchingVersionFound);
+		it('should return the latest version of the desired product', function*() {
+			const ver = new ValenceVersions(instanceUrl, authToken);
+			expect(yield ver.resolveVersion('lp')).to.equal('1.5');
+			lms.done();
 		});
 
-		it('should throw if the desired product is not found', function() {
-			const ver = new ValenceVersions(instanceUrl, supportedVersions);
-			expect(ver.resolveVersion.bind(ver, 'le', '1.5')).to.throw(errors.ProductNotSupported);
+		it('should return the latest matching version of the desired product', function*() {
+			const ver = new ValenceVersions(instanceUrl, authToken);
+			expect(yield ver.resolveVersion('lp', '^1.3.0')).to.equal('1.5');
 		});
 
-		it('should throw if the given semver range is invalid', function() {
-			const ver = new ValenceVersions(instanceUrl, supportedVersions);
-			expect(ver.resolveVersion.bind(ver, 'lp', 'foo')).to.throw(errors.InvalidSemVerRange);
+		it('should throw if the desired product is not found', function*() {
+			const ver = new ValenceVersions(instanceUrl, authToken);
+
+			let err;
+			try {
+				yield ver.resolveVersion('le', '1.5');
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(errors.ProductNotSupported);
+		});
+
+		it('should throw if no matching version of the desired product is found', function*() {
+			const ver = new ValenceVersions(instanceUrl, authToken);
+
+			let err;
+			try {
+				yield ver.resolveVersion('lp', '^1.6.0');
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(errors.NoMatchingVersionFound);
+		});
+
+		it('should throw if the given semver range is invalid', function*() {
+			const ver = new ValenceVersions(instanceUrl, authToken);
+
+			let err;
+			try {
+				yield ver.resolveVersion('lp', 'foo');
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(errors.InvalidSemVerRange);
 		});
 	});
 });

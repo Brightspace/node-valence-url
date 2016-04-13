@@ -4,47 +4,37 @@ Module for dealing with Valence API versions and calculating routes in a semver-
 
 ## Usage
 
-`node-valence-url` is comprised of two parts - `ValenceRoute`s and the `ValenceUrlResolver`. See below for more details.
+`node-valence-url` makes route calculation with Valence APIs easier. Define a `ValenceRoute`, then use the `ValenceUrlResolver` to resolve matching versions with your LMS. `ValenceUrlResolver.resolve()` returns promise-y things.
 
 ```js
 var valenceUrl = require('node-valence-url');
+var ValenceRoute = valenceUrl.ValenceRoute;
 
-var resolver = new ValenceUrlResolver('http://example.com',
-	// Results of a call to /d2l/api/versions/
-	[{
-		ProductCode: 'lp',
-		LatestVersion: '1.6',
-		SupportedVersions: [...]
-	}, {
-		ProductCode: 'le',
-		LatestVersion: '1.6',
-		SupportedVersions: [...]
-	}]);
+var resolver = new ValenceUrlResolver('http://example.com', 'an auth token');
 
-var route;
-route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar');
-resolver.resolve(route); // "http://example.com/foo/1.6/bar"
+var route = new valenceUrl.ValenceRoute.Simple('foo');
+yield resolver.resolve(route); // http://example.com/foo
 
 route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.5');
-resolver.resolve(route); // "http://example.com/foo/1.6/bar"
+yield resolver.resolve(route); // http://example.com/foo/1.6/bar
 
 route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.9');
-resolver.resolve(route); // throws; no version matching ^1.9 exists for lp
+yield resolver.resolve(route); // throws if host LMS does not support versions 1.9 and up
 ```
 
 ## ValenceUrlResolver API
 
 The `ValenceUrlResolver` class does route calculation based off of knowledge about what an LMS supports and information about the desired route (`ValenceRoute`).
 
-### `ValenceUrlResolver(String tenantUrl, Array supportedVersions)`
+### `ValenceUrlResolver(String tenantUrl, String authToken)`
 
-Constructor. `tenantUrl` is the base URL that is prepended to all resolved routes. `supportedVersions` is an array of supported product versions, as returned by `/d2l/api/versions/` on the LMS.
+Constructor. `tenantUrl` is the base URL that is prepended to all resolved routes. `authToken` is an auth token for the `tenantUrl` which is used to fetch versions.
 
 Currently, only the `LatestVersion` of each product is used, but we may update in the future to allow for use of `SupportedVersions`.
 
 ### `ValenceUrlResolver.resolve(ValenceRoute route[, String queryString])`
 
-Resolves a `ValenceRoute` object into a string route that has the highest matching version for the correct product filled in. Optionally, a `queryString` can be included, which will be appended to the calculated route.
+Resolves a `ValenceRoute` object into a string route that has the highest matching version for the correct product filled in. Optionally, a `queryString` can be included, which will be appended to the calculated route. Returns a `Promise`.
 
 ## ValenceRoute API
 

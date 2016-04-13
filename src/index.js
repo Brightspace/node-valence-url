@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	ValenceUrlResolver: require('./url-resolver'),
+	ValenceUrlResolver: require('./ValenceUrlResolver'),
 	ValenceRoute: require('./ValenceRoute'),
-	ValenceVersion: require('./version')
+	ValenceVersion: require('./ValenceVersions')
 };

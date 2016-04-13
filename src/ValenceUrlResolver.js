@@ -2,6 +2,7 @@
 
 const
 	assert = require('assert'),
+	co = require('co'),
 	url = require('url');
 
 const
@@ -11,40 +12,39 @@ const
 	VersionedValenceRoute = ValenceRoute.Versioned;
 
 class ValenceUrlResolver {
-	constructor(tenantUrl, supportedVersions) {
+	constructor(tenantUrl, authToken) {
 		assert('string' === typeof tenantUrl, 'tenantUrl must be a string');
-		assert(Array.isArray(supportedVersions), 'supportedVersions must be an Array');
+		assert('string' === typeof authToken, 'authToken must be a string');
 
 		this._tenantUrl = tenantUrl;
-		this._supportedVersions = new ValenceVersions(tenantUrl, supportedVersions);
+		this._versions = new ValenceVersions(tenantUrl, authToken);
 	}
 
 	get tenantUrl() {
 		return this._tenantUrl;
 	}
 
-	get supportedVersions() {
-		return this._supportedVersions;
-	}
-
-	_resolveVersion(route) {
-		return this._supportedVersions.resolveVersion(route.product, route.desiredSemVer);
+	get versions() {
+		return this._versions;
 	}
 
 	resolve(route, queryString) {
-		assert(route instanceof ValenceRoute || 'string' === typeof route, 'route must be a ValenceRoute or a string');
+		assert(route instanceof ValenceRoute || 'string' === typeof route);
 
-		let result;
+		queryString = queryString || '';
+
 		if (route instanceof SimpleValenceRoute) {
-			// Simple routes don't have a version
-			result = url.resolve(this._tenantUrl, route.path);
+			return Promise.resolve(url.resolve(this._tenantUrl, route.path + queryString));
 		} else if (route instanceof VersionedValenceRoute) {
-			result = url.resolve(this._tenantUrl, route.prefix + this._resolveVersion(route) + route.suffix);
+			const self = this;
+			return co(function*() {
+				return yield self._versions.resolveVersion(route.product, route.desiredSemVer);
+			}).then(function(version) {
+				return url.resolve(self._tenantUrl, route.prefix + version + route.suffix + queryString);
+			});
 		} else {
-			result = url.resolve(this._tenantUrl, route);
+			return Promise.resolve(url.resolve(this._tenantUrl, route + queryString));
 		}
-
-		return result + (queryString || '');
 	}
 }
 
