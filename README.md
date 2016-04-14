@@ -19,7 +19,7 @@ route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.5');
 yield resolver.resolve(route); // http://example.com/foo/1.6/bar
 
 route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.9');
-yield resolver.resolve(route); // throws if host LMS does not support versions 1.9 and up
+yield resolver.resolve(route); // throws if LP does not support versions 1.9 and up on LMS
 ```
 
 ## ValenceUrlResolver API
@@ -64,6 +64,10 @@ Convenience constructor. Similar to `Versioned`, but sets `product` to `lp` and 
 ### `ValenceRoute.LE(String suffix[, String desiredSemVer])`
 
 Convenience constructor. Similar to `Versioned`, but sets `product` to `le` and `prefix` to `/d2l/api/le/`.
+
+## `unstable` Routes
+
+`node-valence-url` supports using _unstable_ API routes on `ValenceRoute.Versioned`, `ValenceRoute.LP`, and `ValenceRoute.LE`. Simply pass `'unstable'` as your `desiredSemVer` when instantiating a route, and calling `ValenceUrlResolver.resolve()` on that Route will return the unstable route.
 
 ## Contributing
 

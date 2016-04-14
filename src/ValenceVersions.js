@@ -58,6 +58,10 @@ ValenceVersions.prototype.resolveVersion = co.wrap(/* @this */ function *(produc
 		throw new errors.ProductNotSupported(product);
 	}
 
+	if ('unstable' === desiredSemVerRange) {
+		return 'unstable';
+	}
+
 	if (!desiredSemVerRange) {
 		return productInfo.latest;
 	}
