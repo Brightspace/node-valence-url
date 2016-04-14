@@ -12,13 +12,13 @@ var ValenceRoute = valenceUrl.ValenceRoute;
 
 var resolver = new ValenceUrlResolver('http://example.com', 'an auth token');
 
-var route = new valenceUrl.ValenceRoute.Simple('foo');
+var route = new ValenceRoute.Simple('foo');
 yield resolver.resolve(route); // http://example.com/foo
 
-route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.5');
+route = new ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.5');
 yield resolver.resolve(route); // http://example.com/foo/1.6/bar
 
-route = new valenceUrl.ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.9');
+route = new ValenceRoute.Versioned('lp', 'foo', 'bar', '^1.9');
 yield resolver.resolve(route); // throws if LP does not support versions 1.9 and up on LMS
 ```
 
@@ -26,11 +26,11 @@ yield resolver.resolve(route); // throws if LP does not support versions 1.9 and
 
 The `ValenceUrlResolver` class does route calculation based off of knowledge about what an LMS supports and information about the desired route (`ValenceRoute`).
 
-### `ValenceUrlResolver(String tenantUrl, String authToken)`
+### `ValenceUrlResolver(Object options)`
 
-Constructor. `tenantUrl` is the base URL that is prepended to all resolved routes. `authToken` is an auth token for the `tenantUrl` which is used to fetch versions.
+Constructor. `options` must contain a string `tenantUrl`, which is the base URL of the LMS that this resolver is running against, and either a string `authToken`, or an Array `versions`. If `versions` is present, this will be used to resolve versions (prevents doing call to _/d2l/api/versions/_). If not present, then the `authToken` string is used along with the `tenantUrl` to kick off a request to fetch the LMS' versions information.
 
-Currently, only the `LatestVersion` of each product is used, but we may update in the future to allow for use of `SupportedVersions`.
+Currently, only the `LatestVersion` of each product is used, but we may update in the future to allow for use of `SupportedVersions`, which would grant greater control over versions, and better backward compatibility.
 
 ### `ValenceUrlResolver.resolve(ValenceRoute route[, String queryString])`
 

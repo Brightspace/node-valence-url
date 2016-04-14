@@ -12,12 +12,13 @@ const
 	VersionedValenceRoute = ValenceRoute.Versioned;
 
 class ValenceUrlResolver {
-	constructor(tenantUrl, authToken) {
-		assert('string' === typeof tenantUrl, 'tenantUrl must be a string');
-		assert('string' === typeof authToken, 'authToken must be a string');
+	constructor(opts) {
+		assert('string' === typeof opts.tenantUrl, 'tenantUrl must be a string');
+		assert('string' === typeof opts.authToken || Array.isArray(opts.versions),
+			'a string authToken, or an Array of versions, must be supplied');
 
-		this._tenantUrl = tenantUrl;
-		this._versions = new ValenceVersions(tenantUrl, authToken);
+		this._tenantUrl = opts.tenantUrl;
+		this._versions = new ValenceVersions(opts);
 	}
 
 	get tenantUrl() {

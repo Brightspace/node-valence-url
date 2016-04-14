@@ -2,5 +2,5 @@
 
 module.exports = {
 	ValenceUrlResolver: require('./ValenceUrlResolver'),
-	ValenceRoute: require('./ValenceRoute');
+	ValenceRoute: require('./ValenceRoute')
 };

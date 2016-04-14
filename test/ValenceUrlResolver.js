@@ -15,34 +15,78 @@ const
 	LPRoute = ValenceRoute.LP;
 
 const
-	instanceUrl = 'http://example.com',
-	authToken = 'foo';
+	tenantUrl = 'http://example.com',
+	authToken = 'foo',
+	versions = [{
+		ProductCode: 'foo',
+		LatestVersion: '1.5'
+	}, {
+		ProductCode: 'bar',
+		LatestVersion: '1.6'
+	}],
+	opts = {
+		tenantUrl: tenantUrl,
+		authToken: authToken,
+		versions: versions
+	};
 
 require('co-mocha');
 
 describe('ValenceUrlResolver', function() {
-	it('should require a string tenantUrl', function() {
+	it('should require opts be an object', function() {
 		expect(function() {
-			new ValenceUrlResolver(1, authToken);
+			new ValenceUrlResolver(1);
 		}).to.throw;
 	});
 
-	it('should require a string authToken', function() {
+	it('should require opts.tenantUrl be a string', function() {
 		expect(function() {
-			new ValenceUrlResolver(instanceUrl, 1);
+			new ValenceUrlResolver({
+				tenantUrl: 1,
+				authToken: authToken,
+				versions: versions
+			});
 		}).to.throw;
+	});
+
+	it('should require a string authToken or Array versions', function() {
+		expect(function() {
+			new ValenceUrlResolver({
+				tenantUrl: tenantUrl,
+				authToken: 1,
+				versions: versions
+			});
+		}).to.throw;
+	});
+
+	it('should work with just a string authToken', function() {
+		expect(function() {
+			new ValenceUrlResolver({
+				tenantUrl: tenantUrl,
+				authToken: authToken
+			});
+		}).to.not.throw;
+	});
+
+	it('should work with just an Array of versions', function() {
+		expect(function() {
+			new ValenceUrlResolver({
+				tenantUrl: tenantUrl,
+				versions: versions
+			});
+		}).to.not.throw;
 	});
 
 	it('should have a tenantUrl property', function() {
-		const res = new ValenceUrlResolver(instanceUrl, authToken);
-		expect(res.tenantUrl).to.equal(instanceUrl);
+		const res = new ValenceUrlResolver(opts);
+		expect(res.tenantUrl).to.equal(tenantUrl);
 	});
 
 	describe('resolve', function() {
 		let resolver;
 
 		beforeEach(function() {
-			resolver = new ValenceUrlResolver(instanceUrl, authToken);
+			resolver = new ValenceUrlResolver(opts);
 			resolver._versions.resolveVersion = function*() {
 				return Promise.resolve('1.6');
 			};

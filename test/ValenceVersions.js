@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach, afterEach */
+/* global describe, it */
 
 'use strict';
 
@@ -12,85 +12,172 @@ const
 	ValenceVersions = require('../src/ValenceVersions');
 
 const
-	instanceUrl = 'http://example.com',
-	authToken = 'foo';
+	tenantUrl = 'http://example.com',
+	authToken = 'foo',
+	versions = [{
+		ProductCode: 'foo',
+		LatestVersion: '1.5'
+	}, {
+		ProductCode: 'bar',
+		LatestVersion: '1.6'
+	}],
+	opts = {
+		tenantUrl: tenantUrl,
+		authToken: authToken,
+		versions: versions
+	};
 
 require('co-mocha');
 
 describe('ValenceVersion', function() {
-	it('should require a string tenantUrl', function() {
+	it('should require opts be an object', function() {
 		expect(function() {
-			new ValenceVersions(1, authToken);
+			new ValenceVersions(1);
 		}).to.throw;
 	});
 
-	it('should require a string authToken', function() {
+	it('should require opts.tenantUrl be a string', function() {
 		expect(function() {
-			new ValenceVersions(instanceUrl, 1);
+			new ValenceVersions({
+				tenantUrl: 1,
+				authToken: authToken,
+				versions: versions
+			});
 		}).to.throw;
+	});
+
+	it('should require a string authToken or Array versions', function() {
+		expect(function() {
+			new ValenceVersions({
+				tenantUrl: tenantUrl,
+				authToken: 1,
+				versions: versions
+			});
+		}).to.throw;
+	});
+
+	it('should work with just a string authToken', function() {
+		expect(function() {
+			new ValenceVersions({
+				tenantUrl: tenantUrl,
+				authToken: authToken
+			});
+		}).to.not.throw;
+	});
+
+	it('should work with just an Array of versions', function() {
+		expect(function() {
+			new ValenceVersions({
+				tenantUrl: tenantUrl,
+				versions: versions
+			});
+		}).to.not.throw;
 	});
 
 	describe('resolveVersion', function() {
-		let lms;
-
-		beforeEach(function() {
-			lms = nock(instanceUrl)
-				.get('/d2l/api/versions/')
-				.reply(200, [{
-					ProductCode: 'lp',
-					LatestVersion: '1.5'
-				}]);
-		});
-
-		afterEach(function() {
-			lms.done();
-		});
-
-		it('should return the latest version of the desired product', function*() {
-			const ver = new ValenceVersions(instanceUrl, authToken);
-			expect(yield ver.resolveVersion('lp')).to.equal('1.5');
-			lms.done();
-		});
-
-		it('should return the latest matching version of the desired product', function*() {
-			const ver = new ValenceVersions(instanceUrl, authToken);
-			expect(yield ver.resolveVersion('lp', '^1.3.0')).to.equal('1.5');
+		it('should not call the LMS if versions are supplied', function*() {
+			const ver = new ValenceVersions(opts);
+			// This would throw if the LMS got called, as there is no mock set up
+			expect(yield ver.resolveVersion('foo')).to.equal('1.5');
 		});
 
 		it('should throw if the desired product is not found', function*() {
-			const ver = new ValenceVersions(instanceUrl, authToken);
+			const ver = new ValenceVersions(opts);
 
 			let err;
 			try {
-				yield ver.resolveVersion('le', '1.5');
+				yield ver.resolveVersion('baz', '1.5');
 			} catch (e) {
 				err = e;
 			}
 			expect(err).to.be.an.instanceof(errors.ProductNotSupported);
 		});
 
-		it('should throw if no matching version of the desired product is found', function*() {
-			const ver = new ValenceVersions(instanceUrl, authToken);
+		it('should give the unstable route, if requested', function*() {
+			const ver = new ValenceVersions(opts);
+			expect(yield ver.resolveVersion('foo', 'unstable')).to.equal('unstable');
+		});
+
+		it('should return the latest version of the desired product', function*() {
+			const ver = new ValenceVersions(opts);
+			expect(yield ver.resolveVersion('foo')).to.equal('1.5');
+		});
+
+		it('should throw if the given semver range is invalid', function*() {
+			const ver = new ValenceVersions(opts);
 
 			let err;
 			try {
-				yield ver.resolveVersion('lp', '^1.6.0');
+				yield ver.resolveVersion('foo', 'foo');
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(errors.InvalidSemVerRange);
+		});
+
+		it('should return the latest matching version of the desired product', function*() {
+			const ver = new ValenceVersions(opts);
+			expect(yield ver.resolveVersion('foo', '^1.3.0')).to.equal('1.5');
+		});
+
+		it('should throw if no matching version of the desired product is found', function*() {
+			const ver = new ValenceVersions(opts);
+
+			let err;
+			try {
+				yield ver.resolveVersion('foo', '^1.6.0');
 			} catch (e) {
 				err = e;
 			}
 			expect(err).to.be.an.instanceof(errors.NoMatchingVersionFound);
 		});
 
-		it('should throw if the given semver range is invalid', function*() {
-			const ver = new ValenceVersions(instanceUrl, authToken);
+		describe('without versions given (with authToken)', function() {
+			it('should call the LMS', function*() {
+				const lms = nock(tenantUrl)
+					.get('/d2l/api/versions/')
+					.reply(200, versions);
 
-			let err;
-			try {
-				yield ver.resolveVersion('lp', 'foo');
-			} catch (e) {
-				err = e;
-			}
-			expect(err).to.be.an.instanceof(errors.InvalidSemVerRange);
+				const ver = new ValenceVersions({
+					tenantUrl: tenantUrl,
+					authToken: authToken
+				});
+				yield ver.resolveVersion('foo');
+
+				// Throws if not called
+				lms.done();
+			});
+
+			it('should properly parse the LMS reply', function*() {
+				const lms = nock(tenantUrl)
+					.get('/d2l/api/versions/')
+					.reply(200, versions);
+
+				const ver = new ValenceVersions({
+					tenantUrl: tenantUrl,
+					authToken: authToken
+				});
+				expect(yield ver.resolveVersion('foo')).to.equal('1.5');
+
+				lms.done();
+			});
+
+			it('should only call the LMS on the first call to resolveVersion', function*() {
+				const lms = nock(tenantUrl)
+					.get('/d2l/api/versions/')
+					.reply(200, versions);
+
+				const ver = new ValenceVersions({
+					tenantUrl: tenantUrl,
+					authToken: authToken
+				});
+				yield ver.resolveVersion('foo');
+
+				lms.done();
+
+				// Would throw if LMS got called after being .done()
+				yield ver.resolveVersion('foo');
+			});
 		});
 	});
 });
