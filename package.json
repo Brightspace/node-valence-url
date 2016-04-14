@@ -13,10 +13,10 @@
   "homepage": "https://github.com/Brightspace/node-valence-url",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Brightspace/node-env-or.git"
+    "url": "https://github.com/Brightspace/node-valence-url.git"
   },
   "bugs": {
-    "url": "https://github.com/Brightspace/node-env-or/issues"
+    "url": "https://github.com/Brightspace/node-valence-url/issues"
   },
   "eslintConfig": {
     "extends": "brightspace",
