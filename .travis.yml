@@ -1,0 +1,14 @@
+sudo: false
+language: node_js
+node_js:
+- '5'
+after_success:
+- npm run report-cov
+deploy:
+  provider: npm
+  email: d2ltravisdeploy@d2l.com
+  api_key:
+    secure: YbCTvhHtgXb0W/wRAiMx2qWtRYzCzoMciGITkEo2fNhPaPMooCzvCg/LHy8OK63fD2HJkpA9aqSf7fSQV1CY2RkBOvVjByADRwkpuok7XV1sQsuKExn6bEVQxzi7bE9z7a+JSAvYiN0M6rtZWgt41Sc9reXlTK4BoLVeagdbFN88YZqt1Ne8y3UAQ9CEeCPVQKB1Pd3oaJQunP1ICnOTpnjIzikK42UQUQ7MXC3rsemIbT9jJ2o3YZ9bbIu04nmP8wJkgyeZVnCTYAc/irZvMV1+wgjQUK9V78GGSPSThuVzyh1UeMSzY5pnRqP8Sl3S8M9fX6m9sOrFWatyEzp86sYvquFBFDNpH3w6lMnAE1rU1NNKoHNXQs8WPKhBm7sRnZW0tCDP5LK+t+1GUnRHP1juhC6e6KVyvO9nvqR2XfHDgLsQTiwj8rT8aAd+kwQf4ktcwXayk7EBH7vR5Hb0T08RaoVMr7WVazhcTl5c+xJJzbrFQdayvTt/wRXvge2TQ3EgSDDQEpXozQQexwly2b3L7JrYPw/ugI7PCcRFdBioVqOaNEII+R1Suq5IpzZN1uz1aD4v1+pwdG4ESnyC4ptN5Mh8m95yJpv6kcbEboJhrvfjX8AgweeHrXErNg3rSwcxDBn60m91eIA+7fjk2R9mQIgjhtpF7YQP78j4A0A=
+  on:
+    tags: true
+    repo: Brightspace/node-valence-url
