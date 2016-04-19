@@ -24,19 +24,17 @@ function ValenceVersions(opts) {
 	assert('string' === typeof opts.authToken || Array.isArray(opts.versions));
 
 	this._tenantUrl = opts.tenantUrl;
-	this._productVersions = {};
 
 	if (Array.isArray(opts.versions)) {
-		const self = this;
-		this._versionsRequest = Promise.resolve();
+		const productVersions = {};
 		opts.versions.forEach(function(product) {
-			self._productVersions[product.ProductCode] = {
+			productVersions[product.ProductCode] = {
 				latest: product.LatestVersion
 			};
 		});
+		this._productVersions = Promise.resolve(productVersions);
 	} else {
-		const self = this;
-		this._versionsRequest = new Promise(function(resolve, reject) {
+		this._productVersions = new Promise(function(resolve, reject) {
 			request
 				.get(opts.tenantUrl + VERSIONS_ROUTE)
 				.set('Authorization', `Bearer ${opts.authToken}`)
@@ -45,44 +43,46 @@ function ValenceVersions(opts) {
 						return reject(err);
 					}
 
+					const productVersions = {};
 					res.body.forEach(function(product) {
-						self._productVersions[product.ProductCode] = {
+						productVersions[product.ProductCode] = {
 							latest: product.LatestVersion
 						};
 					});
 
-					resolve();
+					resolve(productVersions);
 				});
 		});
 	}
 }
 
 ValenceVersions.prototype.resolveVersion = co.wrap(/* @this */ function *(product, desiredSemVerRange) {
-	yield this._versionsRequest;
+	return this._productVersions.then(function(versions) {
+		const productInfo = versions[product];
 
-	const productInfo = this._productVersions[product];
+		if (!productInfo) {
+			throw new errors.ProductNotSupported(product);
+		}
 
-	if (!productInfo) {
-		throw new errors.ProductNotSupported(product);
-	}
+		if ('unstable' === desiredSemVerRange) {
+			return 'unstable';
+		}
 
-	if ('unstable' === desiredSemVerRange) {
-		return 'unstable';
-	}
+		if (!desiredSemVerRange) {
+			return productInfo.latest;
+		}
 
-	if (!desiredSemVerRange) {
+		if (!semver.validRange(desiredSemVerRange)) {
+			throw new errors.InvalidSemVerRange(desiredSemVerRange);
+		}
+
+		if (!semver.satisfies(toSemVer(productInfo.latest), desiredSemVerRange)) {
+			throw new errors.NoMatchingVersionFound(productInfo.latest, desiredSemVerRange);
+		}
+
 		return productInfo.latest;
-	}
+	});
 
-	if (!semver.validRange(desiredSemVerRange)) {
-		throw new errors.InvalidSemVerRange(desiredSemVerRange);
-	}
-
-	if (!semver.satisfies(toSemVer(productInfo.latest), desiredSemVerRange)) {
-		throw new errors.NoMatchingVersionFound(productInfo.latest, desiredSemVerRange);
-	}
-
-	return productInfo.latest;
 });
 
 module.exports = ValenceVersions;
