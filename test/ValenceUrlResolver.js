@@ -9,6 +9,7 @@ const
 const
 	ValenceUrlResolver = require('../src/ValenceUrlResolver'),
 	ValenceRoute = require('../src/ValenceRoute'),
+	ValenceVersions = require('../src/ValenceVersions'),
 	SimpleRoute = ValenceRoute.Simple,
 	VersionedRoute = ValenceRoute.Versioned,
 	LERoute = ValenceRoute.LE,
@@ -36,7 +37,7 @@ describe('ValenceUrlResolver', function() {
 	it('should require opts be an object', function() {
 		expect(function() {
 			new ValenceUrlResolver(1);
-		}).to.throw;
+		}).to.throw(TypeError);
 	});
 
 	it('should require opts.tenantUrl be a string', function() {
@@ -46,17 +47,33 @@ describe('ValenceUrlResolver', function() {
 				authToken: authToken,
 				versions: versions
 			});
-		}).to.throw;
+		}).to.throw(TypeError);
 	});
 
-	it('should require a string authToken or Array versions', function() {
+	it('should require a string authToken', function() {
 		expect(function() {
 			new ValenceUrlResolver({
 				tenantUrl: tenantUrl,
-				authToken: 1,
-				versions: versions
+				authToken: 1
 			});
-		}).to.throw;
+		}).to.throw(TypeError);
+	});
+
+	it('should require an array of versions', function() {
+		expect(function() {
+			new ValenceUrlResolver({
+				tenantUrl: tenantUrl,
+				versions: 1
+			});
+		}).to.throw(TypeError);
+	});
+
+	it('should require either an authToken or versions', function() {
+		expect(function() {
+			new ValenceUrlResolver({
+				tenantUrl: tenantUrl
+			});
+		}).to.throw(TypeError);
 	});
 
 	it('should work with just a string authToken', function() {
@@ -65,7 +82,7 @@ describe('ValenceUrlResolver', function() {
 				tenantUrl: tenantUrl,
 				authToken: authToken
 			});
-		}).to.not.throw;
+		}).to.not.throw(TypeError);
 	});
 
 	it('should work with just an Array of versions', function() {
@@ -74,12 +91,17 @@ describe('ValenceUrlResolver', function() {
 				tenantUrl: tenantUrl,
 				versions: versions
 			});
-		}).to.not.throw;
+		}).to.not.throw(TypeError);
 	});
 
 	it('should have a tenantUrl property', function() {
 		const res = new ValenceUrlResolver(opts);
 		expect(res.tenantUrl).to.equal(tenantUrl);
+	});
+
+	it('should have a versions property', function() {
+		const res = new ValenceUrlResolver(opts);
+		expect(res.versions).to.be.an.instanceof(ValenceVersions);
 	});
 
 	describe('resolve', function() {
@@ -90,6 +112,16 @@ describe('ValenceUrlResolver', function() {
 			resolver._versions.resolveVersion = function*() {
 				return Promise.resolve('1.6');
 			};
+		});
+
+		it('should require the route be a ValenceRoute', function*() {
+			let err;
+			try {
+				yield resolver.resolve(1);
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(TypeError);
 		});
 
 		it('should resolve a string route correctly', function*() {

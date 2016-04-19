@@ -30,10 +30,14 @@ const
 require('co-mocha');
 
 describe('ValenceVersion', function() {
+	it('should auto-instantiate', function() {
+		expect(ValenceVersions(opts)).to.be.an.instanceof(ValenceVersions);
+	});
+
 	it('should require opts be an object', function() {
 		expect(function() {
 			new ValenceVersions(1);
-		}).to.throw;
+		}).to.throw(TypeError);
 	});
 
 	it('should require opts.tenantUrl be a string', function() {
@@ -43,17 +47,33 @@ describe('ValenceVersion', function() {
 				authToken: authToken,
 				versions: versions
 			});
-		}).to.throw;
+		}).to.throw(TypeError);
 	});
 
-	it('should require a string authToken or Array versions', function() {
+	it('should require opts.versions be an Array', function() {
 		expect(function() {
 			new ValenceVersions({
 				tenantUrl: tenantUrl,
-				authToken: 1,
-				versions: versions
+				versions: 1
 			});
-		}).to.throw;
+		}).to.throw(TypeError);
+	});
+
+	it('should require opts.authToken be a string', function() {
+		expect(function() {
+			new ValenceVersions({
+				tenantUrl: tenantUrl,
+				authToken: 1
+			});
+		}).to.throw(TypeError);
+	});
+
+	it('should require either an authToken or versions', function() {
+		expect(function() {
+			new ValenceVersions({
+				tenantUrl: tenantUrl
+			});
+		}).to.throw(TypeError);
 	});
 
 	it('should work with just a string authToken', function() {
@@ -62,7 +82,7 @@ describe('ValenceVersion', function() {
 				tenantUrl: tenantUrl,
 				authToken: authToken
 			});
-		}).to.not.throw;
+		}).to.not.throw(TypeError);
 	});
 
 	it('should work with just an Array of versions', function() {
@@ -71,7 +91,7 @@ describe('ValenceVersion', function() {
 				tenantUrl: tenantUrl,
 				versions: versions
 			});
-		}).to.not.throw;
+		}).to.not.throw(TypeError);
 	});
 
 	describe('resolveVersion', function() {
