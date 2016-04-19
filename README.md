@@ -8,6 +8,8 @@ Module for dealing with Valence API versions and calculating routes in a semver-
 
 `node-valence-url` makes route calculation with Valence APIs easier. Define a `ValenceRoute`, then use the `ValenceUrlResolver` to resolve matching versions with your LMS. `ValenceUrlResolver.resolve()` returns promise-y things.
 
+The `ValenceUrlResolver` does not have any built-in mechanism for updating its internally-stored versions; for this reason, it is recommended that you cache your `ValenceUrlResolver`s (one per tenant), and if the cached resolver is stale, a new one is created which will re-fetch the LMS' versions.
+
 ```js
 var valenceUrl = require('node-valence-url');
 var ValenceRoute = valenceUrl.ValenceRoute;
