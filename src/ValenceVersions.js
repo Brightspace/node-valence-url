@@ -1,7 +1,6 @@
 'use strict';
 
 const
-	co = require('co'),
 	request = require('superagent'),
 	semver = require('semver');
 
@@ -67,7 +66,7 @@ function ValenceVersions(opts) {
 	}
 }
 
-ValenceVersions.prototype.resolveVersion = co.wrap(/* @this */ function *(product, desiredSemVerRange) {
+ValenceVersions.prototype.resolveVersion = function(product, desiredSemVerRange) {
 	return this._productVersions.then(function(versions) {
 		const productInfo = versions[product];
 
@@ -93,7 +92,6 @@ ValenceVersions.prototype.resolveVersion = co.wrap(/* @this */ function *(produc
 
 		return productInfo.latest;
 	});
-
-});
+};
 
 module.exports = ValenceVersions;

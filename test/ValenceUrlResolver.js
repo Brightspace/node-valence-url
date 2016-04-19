@@ -109,7 +109,7 @@ describe('ValenceUrlResolver', function() {
 
 		beforeEach(function() {
 			resolver = new ValenceUrlResolver(opts);
-			resolver._versions.resolveVersion = function*() {
+			resolver._versions.resolveVersion = function() {
 				return Promise.resolve('1.6');
 			};
 		});

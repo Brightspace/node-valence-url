@@ -1,8 +1,6 @@
 'use strict';
 
-const
-	co = require('co'),
-	url = require('url');
+const url = require('url');
 
 const
 	ValenceVersions = require('./ValenceVersions'),
@@ -49,11 +47,10 @@ class ValenceUrlResolver {
 			return Promise.resolve(url.resolve(this._tenantUrl, route.path));
 		} else if (route instanceof VersionedValenceRoute) {
 			const self = this;
-			return co(function*() {
-				return yield self._versions.resolveVersion(route.product, route.desiredSemVer);
-			}).then(function(version) {
-				return url.resolve(self._tenantUrl, route.prefix + version + route.suffix);
-			});
+			return self._versions.resolveVersion(route.product, route.desiredSemVer)
+				.then(function(version) {
+					return url.resolve(self._tenantUrl, route.prefix + version + route.suffix);
+				});
 		} else {
 			return Promise.resolve(url.resolve(this._tenantUrl, route));
 		}

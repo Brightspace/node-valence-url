@@ -37,7 +37,6 @@
     "nock": "^8.0.0"
   },
   "dependencies": {
-    "co": "^4.6.0",
     "semver": "^5.1.0",
     "superagent": "^1.8.3"
   }
