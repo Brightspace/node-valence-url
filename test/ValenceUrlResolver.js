@@ -124,8 +124,18 @@ describe('ValenceUrlResolver', function() {
 			expect(err).to.be.an.instanceof(TypeError);
 		});
 
+		it('should require the query be an object, if included', function*() {
+			let err;
+			try {
+				yield resolver.resolve('foo', 1);
+			} catch (e) {
+				err = e;
+			}
+			expect(err).to.be.an.instanceof(TypeError);
+		});
+
 		it('should resolve a string route correctly', function*() {
-			expect(yield resolver.resolve('foo', '?query=string')).to.equal('http://example.com/foo?query=string');
+			expect(yield resolver.resolve('foo', { query: 'string' })).to.equal('http://example.com/foo?query=string');
 		});
 
 		it('should resolve a Simple route correctly', function*() {

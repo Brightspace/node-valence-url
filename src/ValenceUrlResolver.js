@@ -2,6 +2,7 @@
 
 const
 	co = require('co'),
+	qs = require('querystring'),
 	url = require('url');
 
 const
@@ -40,12 +41,15 @@ class ValenceUrlResolver {
 		return this._versions;
 	}
 
-	resolve(route, queryString) {
+	resolve(route, query) {
 		if (!(route instanceof ValenceRoute) && 'string' !== typeof route) {
 			throw new TypeError(`Expected route to be a ValenceRoute or string; got ${route} (${typeof route}) instead`);
 		}
+		if (query && 'object' !== typeof query) {
+			throw new TypeError(`Expected query to be an object; got ${query} (${typeof query}) instead`);
+		}
 
-		queryString = queryString || '';
+		const queryString = query ? '?' + qs.stringify(query) : '';
 
 		if (route instanceof SimpleValenceRoute) {
 			return Promise.resolve(url.resolve(this._tenantUrl, route.path + queryString));
