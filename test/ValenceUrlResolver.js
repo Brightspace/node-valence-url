@@ -20,10 +20,12 @@ const
 	authToken = 'foo',
 	versions = [{
 		ProductCode: 'foo',
-		LatestVersion: '1.5'
+		LatestVersion: '1.5',
+		SupportedVersions: [ '1.4', '1.5', '1.3' ]
 	}, {
 		ProductCode: 'bar',
-		LatestVersion: '1.6'
+		LatestVersion: '1.6',
+		SupportedVersions: [ '1.4', '1.5', '1.3' ]
 	}],
 	opts = {
 		tenantUrl: tenantUrl,

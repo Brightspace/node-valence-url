@@ -34,8 +34,6 @@ The `ValenceUrlResolver` class does route calculation based off of knowledge abo
 
 Constructor. `options` must contain a string `tenantUrl`, which is the base URL of the LMS that this resolver is running against, and either a string `authToken`, or an Array `versions`. If `versions` is present, this will be used to resolve versions (prevents doing call to _/d2l/api/versions/_). If not present, then the `authToken` string is used along with the `tenantUrl` to kick off a request to fetch the LMS' versions information.
 
-Currently, only the `LatestVersion` of each product is used, but we may update in the future to allow for use of `SupportedVersions`, which would grant greater control over versions, and better backward compatibility.
-
 ### `ValenceUrlResolver.resolve(ValenceRoute route)`
 
 Resolves a `ValenceRoute` object into a string route that has the highest matching version for the correct product filled in. Returns a `Promise` that resolves to the resolved route.

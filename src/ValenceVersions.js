@@ -38,8 +38,13 @@ function ValenceVersions(opts) {
 	if (Array.isArray(opts.versions)) {
 		const productVersions = {};
 		opts.versions.forEach(function(product) {
+			if (!Array.isArray(product.SupportedVersions)) {
+				throw new TypeError(`Expected SupportedVersions to be an array; got ${product.SupportedVersions} (${typeof product.SupportedVersions}) instead`);
+			}
+
 			productVersions[product.ProductCode] = {
-				latest: product.LatestVersion
+				latest: product.LatestVersion,
+				supported: product.SupportedVersions.sort().reverse()
 			};
 		});
 		this._productVersions = Promise.resolve(productVersions);
@@ -56,7 +61,8 @@ function ValenceVersions(opts) {
 					const productVersions = {};
 					res.body.forEach(function(product) {
 						productVersions[product.ProductCode] = {
-							latest: product.LatestVersion
+							latest: product.LatestVersion,
+							supported: product.SupportedVersions.sort().reverse()
 						};
 					});
 
@@ -86,11 +92,18 @@ ValenceVersions.prototype.resolveVersion = function(product, desiredSemVerRange)
 			throw new errors.InvalidSemVerRange(desiredSemVerRange);
 		}
 
-		if (!semver.satisfies(toSemVer(productInfo.latest), desiredSemVerRange)) {
-			throw new errors.NoMatchingVersionFound(productInfo.latest, desiredSemVerRange);
+		if (semver.satisfies(toSemVer(productInfo.latest), desiredSemVerRange)) {
+			return productInfo.latest;
 		}
 
-		return productInfo.latest;
+		const supported = productInfo.supported.find(function(version) {
+			return semver.satisfies(toSemVer(version), desiredSemVerRange);
+		});
+		if (supported) {
+			return supported;
+		}
+
+		throw new errors.NoMatchingVersionFound(productInfo.supported, desiredSemVerRange);
 	});
 };
 
