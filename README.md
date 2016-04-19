@@ -34,9 +34,9 @@ Constructor. `options` must contain a string `tenantUrl`, which is the base URL 
 
 Currently, only the `LatestVersion` of each product is used, but we may update in the future to allow for use of `SupportedVersions`, which would grant greater control over versions, and better backward compatibility.
 
-### `ValenceUrlResolver.resolve(ValenceRoute route[, Object query])`
+### `ValenceUrlResolver.resolve(ValenceRoute route)`
 
-Resolves a `ValenceRoute` object into a string route that has the highest matching version for the correct product filled in. Optionally, a `query` object can be included, which will be stringified and appended to the calculated route. Returns a `Promise`.
+Resolves a `ValenceRoute` object into a string route that has the highest matching version for the correct product filled in. Returns a `Promise` that resolves to the resolved route.
 
 ## ValenceRoute API
 

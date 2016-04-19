@@ -2,7 +2,6 @@
 
 const
 	co = require('co'),
-	qs = require('querystring'),
 	url = require('url');
 
 const
@@ -41,27 +40,22 @@ class ValenceUrlResolver {
 		return this._versions;
 	}
 
-	resolve(route, query) {
+	resolve(route) {
 		if (!(route instanceof ValenceRoute) && 'string' !== typeof route) {
 			throw new TypeError(`Expected route to be a ValenceRoute or string; got ${route} (${typeof route}) instead`);
 		}
-		if (query && 'object' !== typeof query) {
-			throw new TypeError(`Expected query to be an object; got ${query} (${typeof query}) instead`);
-		}
-
-		const queryString = query ? '?' + qs.stringify(query) : '';
 
 		if (route instanceof SimpleValenceRoute) {
-			return Promise.resolve(url.resolve(this._tenantUrl, route.path + queryString));
+			return Promise.resolve(url.resolve(this._tenantUrl, route.path));
 		} else if (route instanceof VersionedValenceRoute) {
 			const self = this;
 			return co(function*() {
 				return yield self._versions.resolveVersion(route.product, route.desiredSemVer);
 			}).then(function(version) {
-				return url.resolve(self._tenantUrl, route.prefix + version + route.suffix + queryString);
+				return url.resolve(self._tenantUrl, route.prefix + version + route.suffix);
 			});
 		} else {
-			return Promise.resolve(url.resolve(this._tenantUrl, route + queryString));
+			return Promise.resolve(url.resolve(this._tenantUrl, route));
 		}
 	}
 }
