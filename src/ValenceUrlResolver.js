@@ -1,7 +1,6 @@
 'use strict';
 
 const
-	assert = require('assert'),
 	co = require('co'),
 	url = require('url');
 
@@ -13,9 +12,21 @@ const
 
 class ValenceUrlResolver {
 	constructor(opts) {
-		assert('string' === typeof opts.tenantUrl, 'tenantUrl must be a string');
-		assert('string' === typeof opts.authToken || Array.isArray(opts.versions),
-			'a string authToken, or an Array of versions, must be supplied');
+		if ('object' !== typeof opts) {
+			throw new TypeError(`Expected opts to be an object; got ${opts} (${typeof opts}) instead`);
+		}
+		if ('string' !== typeof opts.tenantUrl) {
+			throw new TypeError(`Expected opts.tenantUrl to be a URL-formatted string; got ${opts.tenantUrl} (${typeof opts.tenantUrl}) instead`);
+		}
+		if (opts.versions && !Array.isArray(opts.versions)) {
+			throw new TypeError(`Expected opts.versions to be an Array; got ${opts.versions} (${typeof opts.versions}) instead`);
+		}
+		if (opts.authToken && 'string' !== typeof opts.authToken) {
+			throw new TypeError(`Expected opts.authToken to be a string; got ${opts.versions} (${typeof opts.versions}) instead`);
+		}
+		if (!opts.versions && !opts.authToken) {
+			throw new TypeError('opts.versions or opts.authToken must be specified');
+		}
 
 		this._tenantUrl = opts.tenantUrl;
 		this._versions = new ValenceVersions(opts);
@@ -30,7 +41,9 @@ class ValenceUrlResolver {
 	}
 
 	resolve(route, queryString) {
-		assert(route instanceof ValenceRoute || 'string' === typeof route);
+		if (!(route instanceof ValenceRoute) && 'string' !== typeof route) {
+			throw new TypeError(`Expected route to be a ValenceRoute or string; got ${route} (${typeof route}) instead`);
+		}
 
 		queryString = queryString || '';
 
