@@ -168,6 +168,27 @@ describe('ValenceVersion', function() {
 				lms.done();
 			});
 
+			it('should throw if the response had an error', function*() {
+				const lms = nock(tenantUrl)
+					.get('/d2l/api/versions/')
+					.reply(500);
+
+				const ver = new ValenceVersions({
+					tenantUrl: tenantUrl,
+					authToken: authToken
+				});
+
+				let err;
+				try {
+					yield ver.resolveVersion('foo');
+				} catch (e) {
+					err = e;
+				}
+				expect(err).to.be.an.instanceof(Error);
+
+				lms.done();
+			});
+
 			it('should properly parse the LMS reply', function*() {
 				const lms = nock(tenantUrl)
 					.get('/d2l/api/versions/')
