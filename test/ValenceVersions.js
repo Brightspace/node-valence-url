@@ -144,6 +144,26 @@ describe('ValenceVersion', function() {
 
 			lms.done();
 		});
+		[['no body', null], ['string', 'cats'], ['non-array object', {}], ['array of objects with missing properties', [{}]]].forEach(function(params) {
+			it(`should reject if the response is of an unexpected format (${params[0]})`, function*() {
+				const lms = nock(tenantUrl)
+					.get('/d2l/api/versions/')
+					.reply(200, params[1]);
+
+				const ver = new ValenceVersions({ tenantUrl, authToken });
+
+				let err;
+				try {
+					yield ver.resolveVersion('foo');
+				} catch (e) {
+					err = e;
+				}
+
+				expect(err).to.be.an.instanceof(Error);
+
+				lms.done();
+			});
+		});
 
 		it('should properly parse the LMS reply', function*() {
 			const lms = nock(tenantUrl)
