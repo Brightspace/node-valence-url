@@ -20,8 +20,17 @@ function ProductNotSupportedError(product) {
 }
 util.inherits(ProductNotSupportedError, Error);
 
+function UnexpectedVersionsResponseError(inner) {
+	this.name = 'UnexpectedVersionsResponseError';
+	this.message = 'An unexpected response was received when requesting versions from the LMS';
+
+	this.inner = inner;
+}
+util.inherits(UnexpectedVersionsResponseError, Error);
+
 module.exports = {
 	InvalidSemVerRange: InvalidSemVerRangeError,
 	NoMatchingVersionFound: NoMatchingVersionFoundError,
-	ProductNotSupported: ProductNotSupportedError
+	ProductNotSupported: ProductNotSupportedError,
+	UnexpectedVersionsResponse: UnexpectedVersionsResponseError
 };

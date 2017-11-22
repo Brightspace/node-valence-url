@@ -49,24 +49,38 @@ function ValenceVersions(opts) {
 		});
 		this._productVersions = Promise.resolve(productVersions);
 	} else {
-		this._productVersions = new Promise(function(resolve, reject) {
+		this._productVersions = new Promise(function(resolve) {
 			request
 				.get(opts.tenantUrl + VERSIONS_ROUTE)
 				.set('Authorization', `Bearer ${opts.authToken}`)
 				.end(function(err, res) {
-					if (err) {
-						return reject(err);
-					}
+					resolve(new Promise(function(resolve) {
+						if (err) {
+							throw new errors.UnexpectedVersionsResponse(err);
+						}
 
-					const productVersions = {};
-					res.body.forEach(function(product) {
-						productVersions[product.ProductCode] = {
-							latest: product.LatestVersion,
-							supported: product.SupportedVersions.sort().reverse()
-						};
-					});
+						if (!res.body || !Array.isArray(res.body)) {
+							throw new errors.UnexpectedVersionsResponse(new Error(`Repsonse body is not an array. Got "${typeof res.body}"`));
+						}
 
-					resolve(productVersions);
+						const productVersions = {};
+						for (var i = 0; i < res.body.length; ++i) {
+							var product = res.body[i];
+							if (typeof product.ProductCode !== 'string'
+								|| typeof product.LatestVersion !== 'string'
+								|| !Array.isArray(product.SupportedVersions)
+							) {
+								throw new errors.UnexpectedVersionsResponse(new Error('A version object in the response did not contain the expected properties.'));
+							}
+
+							productVersions[product.ProductCode] = {
+								latest: product.LatestVersion,
+								supported: product.SupportedVersions.sort().reverse()
+							};
+						}
+
+						resolve(productVersions);
+					}));
 				});
 		});
 	}
