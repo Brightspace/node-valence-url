@@ -19,6 +19,7 @@
   "bugs": {
     "url": "https://github.com/Brightspace/node-valence-url/issues"
   },
+  "license": "Apache-2.0",
   "eslintConfig": {
     "extends": "brightspace",
     "env": {
