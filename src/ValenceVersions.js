@@ -56,11 +56,14 @@ function ValenceVersions(opts) {
 				.end(function(err, res) {
 					resolve(new Promise(function(resolve) {
 						if (err) {
-							throw new errors.UnexpectedVersionsResponse(err);
+							throw new errors.UnexpectedVersionsResponse(opts.tenantUrl, err);
 						}
 
 						if (!res.body || !Array.isArray(res.body)) {
-							throw new errors.UnexpectedVersionsResponse(new Error(`Repsonse body is not an array. Got "${typeof res.body}"`));
+							throw new errors.UnexpectedVersionsResponse(
+								opts.tenantUrl,
+								new Error(`Repsonse body is not an array. Got "${typeof res.body}"`)
+							);
 						}
 
 						const productVersions = {};
@@ -70,7 +73,10 @@ function ValenceVersions(opts) {
 								|| typeof product.LatestVersion !== 'string'
 								|| !Array.isArray(product.SupportedVersions)
 							) {
-								throw new errors.UnexpectedVersionsResponse(new Error('A version object in the response did not contain the expected properties.'));
+								throw new errors.UnexpectedVersionsResponse(
+									opts.tenantUrl,
+									new Error('A version object in the response did not contain the expected properties.')
+								);
 							}
 
 							productVersions[product.ProductCode] = {
@@ -87,11 +93,13 @@ function ValenceVersions(opts) {
 }
 
 ValenceVersions.prototype.resolveVersion = function(product, desiredSemVerRange) {
+	const self = this;
+
 	return this._productVersions.then(function(versions) {
 		const productInfo = versions[product];
 
 		if (!productInfo) {
-			throw new errors.ProductNotSupported(product);
+			throw new errors.ProductNotSupported(self._tenantUrl, product);
 		}
 
 		if ('unstable' === desiredSemVerRange) {
@@ -117,7 +125,7 @@ ValenceVersions.prototype.resolveVersion = function(product, desiredSemVerRange)
 			return supported;
 		}
 
-		throw new errors.NoMatchingVersionFound(productInfo.supported, desiredSemVerRange);
+		throw new errors.NoMatchingVersionFound(self._tenantUrl, productInfo.supported, desiredSemVerRange);
 	});
 };
 

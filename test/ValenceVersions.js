@@ -141,6 +141,7 @@ describe('ValenceVersion', function() {
 				err = e;
 			}
 			expect(err).to.be.an.instanceof(Error);
+			expect(err.message).to.contain(tenantUrl);
 
 			lms.done();
 		});
@@ -160,6 +161,7 @@ describe('ValenceVersion', function() {
 				}
 
 				expect(err).to.be.an.instanceof(Error);
+				expect(err.message).to.contain(tenantUrl);
 
 				lms.done();
 			});
@@ -214,6 +216,7 @@ describe('ValenceVersion', function() {
 				err = e;
 			}
 			expect(err).to.be.an.instanceof(errors.ProductNotSupported);
+			expect(err.message).to.contain(tenantUrl);
 		});
 
 		it('should give the unstable route, if requested', function*() {
@@ -263,6 +266,7 @@ describe('ValenceVersion', function() {
 				err = e;
 			}
 			expect(err).to.be.an.instanceof(errors.NoMatchingVersionFound);
+			expect(err.message).to.contain(tenantUrl);
 		});
 	});
 });
