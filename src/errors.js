@@ -8,21 +8,21 @@ function InvalidSemVerRangeError(semver) {
 }
 util.inherits(InvalidSemVerRangeError, Error);
 
-function NoMatchingVersionFoundError(supported, desired) {
+function NoMatchingVersionFoundError(tenantUrl, supported, desired) {
 	this.name = 'NoMatchingVersionFoundError';
-	this.message = `No version matching ${ desired } found; supported versions are: ${ supported }`;
+	this.message = `No version matching ${ desired } found; supported versions are: ${ supported } (${tenantUrl})`;
 }
 util.inherits(NoMatchingVersionFoundError, Error);
 
-function ProductNotSupportedError(product) {
+function ProductNotSupportedError(tenantUrl, product) {
 	this.name = 'ProductNotSupportedError';
-	this.message = `"${ product }" is not a valid product on this LMS`;
+	this.message = `"${ product }" is not a valid product on this LMS (${tenantUrl}).`;
 }
 util.inherits(ProductNotSupportedError, Error);
 
-function UnexpectedVersionsResponseError(inner) {
+function UnexpectedVersionsResponseError(tenantUrl, inner) {
 	this.name = 'UnexpectedVersionsResponseError';
-	this.message = 'An unexpected response was received when requesting versions from the LMS';
+	this.message = `An unexpected response was received when requesting versions from the LMS (${tenantUrl})`;
 
 	this.inner = inner;
 }
